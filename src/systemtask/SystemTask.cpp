@@ -214,7 +214,9 @@ void SystemTask::Work() {
           state = SystemTaskState::Running;
           break;
         case Messages::TouchWakeUp: {
-          if (touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo())) {
+          Pinetime::Controllers::TouchHandler::TouchProcessReply reply;
+          reply = touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo(), settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::ButtonUnlocks));
+          if (reply == Pinetime::Controllers::TouchHandler::TouchProcessReply::TouchEvent) {
             auto gesture = touchHandler.GestureGet();
             if (settingsController.GetNotificationStatus() != Controllers::Settings::Notification::Sleep &&
                 gesture != Pinetime::Applications::TouchEvents::None &&
@@ -222,12 +224,16 @@ void SystemTask::Work() {
                   settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::DoubleTap)) ||
                  (gesture == Pinetime::Applications::TouchEvents::Tap &&
                   settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::SingleTap)))) {
+              touchHandler.SetIfButtonUnlocksIgnoreTouch(true);
+              touchHandler.SetWokenBy(Pinetime::Controllers::TouchHandler::WokenBy::WakeUpAction);
               GoToRunning();
             }
           }
           break;
         }
         case Messages::GoToSleep:
+          touchHandler.SetIgnoreTouchPopupHidden(true);
+          displayApp.PushMessage(Pinetime::Applications::Display::Messages::HideIgnoreTouchPopup);
           if (doNotGoToSleep) {
             break;
           }
@@ -291,24 +297,42 @@ void SystemTask::Work() {
           // TODO add intent of fs access icon or something
           break;
         case Messages::OnTouchEvent:
-          if (touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo())) {
+          Pinetime::Controllers::TouchHandler::TouchProcessReply reply;
+          reply = touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo(), settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::ButtonUnlocks));
+          NRF_LOG_INFO("[systemtask] OnTouchEvent, reply %d", reply);
+
+          if (reply == Pinetime::Controllers::TouchHandler::TouchProcessReply::TouchEvent) {
             displayApp.PushMessage(Pinetime::Applications::Display::Messages::TouchEvent);
+          } else if (reply == Pinetime::Controllers::TouchHandler::TouchProcessReply::IgnoreTouchPopup) {
+            displayApp.PushMessage(Pinetime::Applications::Display::Messages::ShowIgnoreTouchPopup);
+            touchHandler.SetIgnoreTouchPopupHidden(false);
           }
           break;
         case Messages::HandleButtonEvent: {
-          Controllers::ButtonActions action = Controllers::ButtonActions::None;
-          if (nrf_gpio_pin_read(Pinetime::PinMap::Button) == 0) {
-            action = buttonHandler.HandleEvent(Controllers::ButtonHandler::Events::Release);
-          } else {
-            action = buttonHandler.HandleEvent(Controllers::ButtonHandler::Events::Press);
-            // This is for faster wakeup, sacrificing special longpress and doubleclick handling while sleeping
-            if (IsSleeping()) {
-              fastWakeUpDone = true;
-              GoToRunning();
-              break;
-            }
+          // if the IgnoreTouchPopup is active the first button event unlocks the device
+          if (!touchHandler.IsIgnoreTouchPopupHidden()) {
+            touchHandler.SetWokenBy(Pinetime::Controllers::TouchHandler::WokenBy::Button);
+            touchHandler.SetIfButtonUnlocksIgnoreTouch(false);
+            touchHandler.SetIgnoreTouchPopupHidden(true);
+            displayApp.PushMessage(Pinetime::Applications::Display::Messages::HideIgnoreTouchPopup);
           }
-          HandleButtonAction(action);
+          else {
+            Controllers::ButtonActions action = Controllers::ButtonActions::None;
+            if (nrf_gpio_pin_read(Pinetime::PinMap::Button) == 0) {
+              action = buttonHandler.HandleEvent(Controllers::ButtonHandler::Events::Release);
+            } else {
+              action = buttonHandler.HandleEvent(Controllers::ButtonHandler::Events::Press);
+              touchHandler.SetWokenBy(Pinetime::Controllers::TouchHandler::WokenBy::Button);
+              touchHandler.SetIfButtonUnlocksIgnoreTouch(false);
+              // This is for faster wakeup, sacrificing special longpress and doubleclick handling while sleeping
+              if (IsSleeping()) {
+                fastWakeUpDone = true;
+                GoToRunning();
+                break;
+              }
+            }
+            HandleButtonAction(action);
+          }
         } break;
         case Messages::HandleButtonTimerEvent: {
           auto action = buttonHandler.HandleEvent(Controllers::ButtonHandler::Events::Timer);
@@ -328,6 +352,8 @@ void SystemTask::Work() {
           }
 
           state = SystemTaskState::Sleeping;
+          touchHandler.SetWokenBy(Pinetime::Controllers::TouchHandler::WokenBy::Other);
+          touchHandler.SetIfButtonUnlocksIgnoreTouch(false);
           break;
         case Messages::OnNewDay:
           // We might be sleeping (with TWI device disabled.
@@ -433,6 +459,8 @@ void SystemTask::UpdateMotion() {
          motionController.ShouldRaiseWake()) ||
         (settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::Shake) &&
          motionController.ShouldShakeWake(settingsController.GetShakeThreshold()))) {
+      touchHandler.SetWokenBy(Pinetime::Controllers::TouchHandler::WokenBy::WakeUpAction);
+      touchHandler.SetIfButtonUnlocksIgnoreTouch(true);
       GoToRunning();
     }
   }

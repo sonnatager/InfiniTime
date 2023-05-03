@@ -30,7 +30,7 @@ namespace Pinetime {
           {Controllers::Settings::WakeUpMode::DoubleTap, "Double Tap"},
           {Controllers::Settings::WakeUpMode::RaiseWrist, "Raise Wrist"},
           {Controllers::Settings::WakeUpMode::Shake, "Shake Wake"},
-          {Controllers::Settings::WakeUpMode::LowerWrist, "Lower Wrist"},
+          {Controllers::Settings::WakeUpMode::ButtonUnlocks, "Button Unlock"},
         }};
 
         lv_obj_t* cbOption[options.size()];
