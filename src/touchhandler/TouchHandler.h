@@ -38,22 +38,19 @@ namespace Pinetime {
         return currentTouchPoint.y;
       }
 
-      void SetIfButtonUnlocksIgnoreTouch(bool ignore)
-      {
+      void SetIfButtonUnlocksIgnoreTouch(bool ignore) {
         ignoreNextTouchEvent = ignore;
       }
 
-      void SetIgnoreTouchPopupHidden(bool hidden)
-      {
+      void SetIgnoreTouchPopupHidden(bool hidden) {
         ignoreTouchPopupHidden = hidden;
       }
-      bool IsIgnoreTouchPopupHidden()
-      {
+
+      bool IsIgnoreTouchPopupHidden() {
         return ignoreTouchPopupHidden;
       }
 
-      void SetWokenBy(WokenBy woken)
-      {
+      void SetWokenBy(WokenBy woken) {
         wokenBy = woken;
       }
 
