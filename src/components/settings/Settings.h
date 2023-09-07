@@ -17,7 +17,8 @@ namespace Pinetime {
         DoubleTap = 1,
         RaiseWrist = 2,
         Shake = 3,
-        ButtonUnlocks = 4,
+        LowerWrist = 4,
+        ButtonUnlocks = 5,
       };
       enum class Colors : uint8_t {
         White,
@@ -40,12 +41,14 @@ namespace Pinetime {
         Pink
       };
       enum class PTSGaugeStyle : uint8_t { Full, Half, Numeric };
+      enum class PTSWeather : uint8_t { On, Off };
 
       struct PineTimeStyle {
         Colors ColorTime = Colors::Teal;
         Colors ColorBar = Colors::Teal;
         Colors ColorBG = Colors::Black;
         PTSGaugeStyle gaugeStyle = PTSGaugeStyle::Full;
+        PTSWeather weatherEnable = PTSWeather::Off;
       };
 
       struct WatchFaceInfineat {
@@ -145,6 +148,16 @@ namespace Pinetime {
 
       PTSGaugeStyle GetPTSGaugeStyle() const {
         return settings.PTS.gaugeStyle;
+      };
+
+      void SetPTSWeather(PTSWeather weatherEnable) {
+        if (weatherEnable != settings.PTS.weatherEnable)
+          settingsChanged = true;
+        settings.PTS.weatherEnable = weatherEnable;
+      };
+
+      PTSWeather GetPTSWeather() const {
+        return settings.PTS.weatherEnable;
       };
 
       void SetAppMenu(uint8_t menu) {
@@ -268,7 +281,7 @@ namespace Pinetime {
     private:
       Pinetime::Controllers::FS& fs;
 
-      static constexpr uint32_t settingsVersion = 0x0005;
+      static constexpr uint32_t settingsVersion = 0x0007;
 
       struct SettingsData {
         uint32_t version = settingsVersion;
@@ -287,6 +300,7 @@ namespace Pinetime {
 
         std::bitset<5> wakeUpMode {0};
         uint16_t shakeWakeThreshold = 150;
+
         Controllers::BrightnessController::Levels brightLevel = Controllers::BrightnessController::Levels::Medium;
       };
 
