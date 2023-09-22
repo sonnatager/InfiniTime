@@ -108,7 +108,8 @@ std::unique_ptr<Screen> Clock::WatchFaceTerminalScreen() {
                                                       notificationManager,
                                                       settingsController,
                                                       heartRateController,
-                                                      motionController);
+                                                      motionController,
+                                                      weatherService);
 }
 
 std::unique_ptr<Screen> Clock::WatchFaceInfineatScreen() {

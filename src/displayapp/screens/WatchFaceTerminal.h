@@ -30,7 +30,8 @@ namespace Pinetime {
                           Controllers::NotificationManager& notificationManager,
                           Controllers::Settings& settingsController,
                           Controllers::HeartRateController& heartRateController,
-                          Controllers::MotionController& motionController);
+                          Controllers::MotionController& motionController,
+                          Controllers::WeatherService& weatherService);
         ~WatchFaceTerminal() override;
 
         void Refresh() override;
@@ -47,6 +48,9 @@ namespace Pinetime {
         Utility::DirtyValue<size_t> notificationCount {};
         using days = std::chrono::duration<int32_t, std::ratio<86400>>; // TODO: days is standard in c++20
         Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, days>> currentDate;
+        Utility::DirtyValue<int16_t> nowTemp {};
+        Utility::DirtyValue<int16_t> clouds = {};
+        Utility::DirtyValue<int16_t> precip = {};
 
         lv_obj_t* label_time;
         lv_obj_t* label_date;
@@ -57,7 +61,8 @@ namespace Pinetime {
         lv_obj_t* stepValue;
         lv_obj_t* notificationIcon;
         lv_obj_t* connectState;
-        lv_obj_t* wheaterState;
+        lv_obj_t* weatherStatePrefix;
+        lv_obj_t* weatherState;
 
         Controllers::DateTime& dateTimeController;
         const Controllers::Battery& batteryController;
@@ -66,6 +71,7 @@ namespace Pinetime {
         Controllers::Settings& settingsController;
         Controllers::HeartRateController& heartRateController;
         Controllers::MotionController& motionController;
+        Controllers::WeatherService& weatherService;
 
         lv_task_t* taskRefresh;
       };

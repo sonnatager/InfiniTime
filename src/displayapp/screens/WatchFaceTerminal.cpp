@@ -18,7 +18,8 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
                                      Controllers::NotificationManager& notificationManager,
                                      Controllers::Settings& settingsController,
                                      Controllers::HeartRateController& heartRateController,
-                                     Controllers::MotionController& motionController)
+                                     Controllers::MotionController& motionController,
+                                     Controllers::WeatherService& weatherService)
   : currentDateTime {{}},
     dateTimeController {dateTimeController},
     batteryController {batteryController},
@@ -26,42 +27,53 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
     notificationManager {notificationManager},
     settingsController {settingsController},
     heartRateController {heartRateController},
-    motionController {motionController} {
+    motionController {motionController},
+    weatherService {weatherService} {
 
   label_prompt_1 = lv_label_create(lv_scr_act(), nullptr);
-  lv_obj_align(label_prompt_1, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -80);
+  lv_obj_align(label_prompt_1, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -90);
   lv_label_set_text_static(label_prompt_1, "user@watch:~ $ now");
 
   label_time = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(label_time, true);
-  lv_obj_align(label_time, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -60);
+  lv_obj_align(label_time, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -70);
 
   label_date = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(label_date, true);
-  lv_obj_align(label_date, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -40);
+  lv_obj_align(label_date, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -50);
 
   batteryValue = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(batteryValue, true);
-  lv_obj_align(batteryValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -20);
+  lv_obj_align(batteryValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -30);
 
   notificationIcon = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(notificationIcon, true);
-  lv_obj_align(notificationIcon, nullptr, LV_ALIGN_IN_LEFT_MID, 0, 0);
+  lv_obj_align(notificationIcon, nullptr, LV_ALIGN_IN_LEFT_MID, 0, -10);
 
   stepValue = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(stepValue, true);
-  lv_obj_align(stepValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 20);
+  lv_obj_align(stepValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 10);
 
   heartbeatValue = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(heartbeatValue, true);
-  lv_obj_align(heartbeatValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 40);
+  lv_obj_align(heartbeatValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 30);
 
   connectState = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(connectState, true);
-  lv_obj_align(connectState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 60);
+  lv_obj_align(connectState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 50);
+
+  weatherStatePrefix = lv_label_create(lv_scr_act(), nullptr);
+  lv_obj_align(weatherStatePrefix, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 70);
+  lv_label_set_text_static(weatherStatePrefix, "[WTHR]");
+
+  weatherState = lv_label_create(lv_scr_act(), nullptr);
+  lv_label_set_long_mode(weatherState, LV_LABEL_LONG_SROLL_CIRC);
+  lv_label_set_recolor(weatherState, true);
+  lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 75, 70);
+  lv_obj_set_width(weatherState, LV_HOR_RES - 75);
 
   label_prompt_2 = lv_label_create(lv_scr_act(), nullptr);
-  lv_obj_align(label_prompt_2, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 80);
+  lv_obj_align(label_prompt_2, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 90);
   lv_label_set_text_static(label_prompt_2, "user@watch:~ $");
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
@@ -77,7 +89,7 @@ void WatchFaceTerminal::Refresh() {
   powerPresent = batteryController.IsPowerPresent();
   batteryPercentRemaining = batteryController.PercentRemaining();
   if (batteryPercentRemaining.IsUpdated() || powerPresent.IsUpdated()) {
-    lv_label_set_text_fmt(batteryValue, "[BATT]#387b54 %d%% ", batteryPercentRemaining.Get());
+    lv_label_set_text_fmt(batteryValue, "[BATT]#387b54 %d%%#", batteryPercentRemaining.Get());
     if (batteryController.IsPowerPresent()) {
       lv_label_ins_text(batteryValue, LV_LABEL_POS_LAST, " Charging");
     }
@@ -151,5 +163,27 @@ void WatchFaceTerminal::Refresh() {
   stepCount = motionController.NbSteps();
   if (stepCount.IsUpdated()) {
     lv_label_set_text_fmt(stepValue, "[STEP]#ee3377 %lu steps#", stepCount.Get());
+  }
+
+  if (weatherService.GetCurrentTemperature()->timestamp != 0 && weatherService.GetCurrentClouds()->timestamp != 0 &&
+      weatherService.GetCurrentPrecipitation()->timestamp != 0) {
+    nowTemp = (weatherService.GetCurrentTemperature()->temperature);
+    clouds = (weatherService.GetCurrentClouds()->amount);
+    precip = (weatherService.GetCurrentPrecipitation()->amount);
+    if (nowTemp.IsUpdated()) {
+      if ((clouds.Get() <= 30) && (precip.Get() == 0)) {
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° clear#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+      } else if ((clouds.Get() >= 70) && (clouds.Get() <= 90) && (precip.Get() == 1)) {
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° sun/cloudy/rain#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+      } else if ((clouds.Get() > 90) && (precip.Get() == 0)) {
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° cloudy#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+      } else if ((clouds.Get() > 70) && (precip.Get() >= 2)) {
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° rain#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+      } else {
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° part.cloudy#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+      };
+    }    
+  } else {
+    lv_label_set_text_static(weatherState, "#be2bc1 ---#");
   }
 }
