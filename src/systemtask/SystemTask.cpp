@@ -215,9 +215,7 @@ void SystemTask::Work() {
           break;
         case Messages::TouchWakeUp: {
           Pinetime::Controllers::TouchHandler::TouchProcessReply reply;
-          reply =
-            touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo(),
-                                          settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::ButtonUnlocks));
+          reply = touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo(), settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::ButtonUnlocks));
           if (reply == Pinetime::Controllers::TouchHandler::TouchProcessReply::TouchEvent) {
             auto gesture = touchHandler.GestureGet();
             if (settingsController.GetNotificationStatus() != Controllers::Settings::Notification::Sleep &&
@@ -300,9 +298,7 @@ void SystemTask::Work() {
           break;
         case Messages::OnTouchEvent:
           Pinetime::Controllers::TouchHandler::TouchProcessReply reply;
-          reply =
-            touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo(),
-                                          settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::ButtonUnlocks));
+          reply = touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo(), settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::ButtonUnlocks));
           NRF_LOG_INFO("[systemtask] OnTouchEvent, reply %d", reply);
 
           if (reply == Pinetime::Controllers::TouchHandler::TouchProcessReply::TouchEvent) {
@@ -319,7 +315,8 @@ void SystemTask::Work() {
             touchHandler.SetIfButtonUnlocksIgnoreTouch(false);
             touchHandler.SetIgnoreTouchPopupHidden(true);
             displayApp.PushMessage(Pinetime::Applications::Display::Messages::HideIgnoreTouchPopup);
-          } else {
+          }
+          else {
             Controllers::ButtonActions action = Controllers::ButtonActions::None;
             if (nrf_gpio_pin_read(Pinetime::PinMap::Button) == 0) {
               action = buttonHandler.HandleEvent(Controllers::ButtonHandler::Events::Release);

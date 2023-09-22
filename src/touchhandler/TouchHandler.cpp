@@ -44,7 +44,8 @@ TouchHandler::TouchProcessReply TouchHandler::ProcessTouchInfo(Drivers::Cst816S:
     ignoreNextTouchEvent = false;
     return TouchHandler::TouchProcessReply::NoAction;
 
-  } else if (!buttonUnlocksOn || wokenBy != WokenBy::WakeUpAction) {
+  } else if (!buttonUnlocksOn || wokenBy != WokenBy::WakeUpAction)
+  {
 
     // if we get to here TouchEvents is allowed and the "ButtonUnlocks" requirement can be overridden
     wokenBy = WokenBy::Other;
@@ -74,7 +75,9 @@ TouchHandler::TouchProcessReply TouchHandler::ProcessTouchInfo(Drivers::Cst816S:
     currentTouchPoint = {info.x, info.y, info.touching};
 
     return TouchHandler::TouchProcessReply::TouchEvent;
-  } else {
+  }
+  else
+  {
     return TouchHandler::TouchProcessReply::IgnoreTouchPopup;
   }
 }
