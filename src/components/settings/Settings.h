@@ -239,7 +239,7 @@ namespace Pinetime {
         }
       };
 
-      std::bitset<6> getWakeUpModes() const {
+      std::bitset<5> getWakeUpModes() const {
         return settings.wakeUpMode;
       }
 
@@ -297,7 +297,7 @@ namespace Pinetime {
 
         WatchFaceInfineat watchFaceInfineat;
 
-        std::bitset<6> wakeUpMode {0};
+        std::bitset<5> wakeUpMode {0};
         uint16_t shakeWakeThreshold = 150;
 
         Controllers::BrightnessController::Levels brightLevel = Controllers::BrightnessController::Levels::Medium;
