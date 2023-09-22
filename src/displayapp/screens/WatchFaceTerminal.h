@@ -16,6 +16,7 @@ namespace Pinetime {
     class NotificationManager;
     class HeartRateController;
     class MotionController;
+    class WeatherService;
   }
 
   namespace Applications {
@@ -43,7 +44,7 @@ namespace Pinetime {
         Utility::DirtyValue<uint32_t> stepCount {};
         Utility::DirtyValue<uint8_t> heartbeat {};
         Utility::DirtyValue<bool> heartbeatRunning {};
-        Utility::DirtyValue<bool> notificationState {};
+        Utility::DirtyValue<size_t> notificationCount {};
         using days = std::chrono::duration<int32_t, std::ratio<86400>>; // TODO: days is standard in c++20
         Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, days>> currentDate;
 
@@ -56,6 +57,7 @@ namespace Pinetime {
         lv_obj_t* stepValue;
         lv_obj_t* notificationIcon;
         lv_obj_t* connectState;
+        lv_obj_t* wheaterState;
 
         Controllers::DateTime& dateTimeController;
         const Controllers::Battery& batteryController;
