@@ -303,6 +303,8 @@ void SystemTask::Work() {
           reply =
             touchHandler.ProcessTouchInfo(touchPanel.GetTouchInfo(),
                                           settingsController.isWakeUpModeOn(Pinetime::Controllers::Settings::WakeUpMode::ButtonUnlocks));
+          NRF_LOG_INFO("[systemtask] OnTouchEvent, reply %d", reply);
+
           if (reply == Pinetime::Controllers::TouchHandler::TouchProcessReply::TouchEvent) {
             displayApp.PushMessage(Pinetime::Applications::Display::Messages::TouchEvent);
           } else if (reply == Pinetime::Controllers::TouchHandler::TouchProcessReply::IgnoreTouchPopup) {
