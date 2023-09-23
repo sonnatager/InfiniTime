@@ -235,6 +235,9 @@ void DisplayApp::Refresh() {
         lcd.Wakeup();
         lv_disp_trig_activity(nullptr);
         ApplyBrightness();
+        if(currentApp != Apps::Timer){
+          LoadNewScreen(Apps::Clock, DisplayApp::FullRefreshDirections::None);
+        }
         state = States::Running;
         break;
       case Messages::UpdateBleConnection:
