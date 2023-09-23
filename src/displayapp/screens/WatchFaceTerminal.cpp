@@ -9,6 +9,7 @@
 #include "components/heartrate/HeartRateController.h"
 #include "components/motion/MotionController.h"
 #include "components/settings/Settings.h"
+#include <displayapp/Colors.h>
 
 using namespace Pinetime::Applications::Screens;
 
@@ -46,9 +47,15 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
   lv_label_set_recolor(batteryValue, true);
   lv_obj_align(batteryValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -30);
 
+  notificationPrefix = lv_label_create(lv_scr_act(), nullptr);
+  lv_label_set_recolor(notificationPrefix, true);
+  lv_label_set_text_static(notificationPrefix, "[NOTI]");
+  lv_obj_align(notificationPrefix, nullptr, LV_ALIGN_IN_LEFT_MID, 0, -10);
+
   notificationIcon = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(notificationIcon, true);
-  lv_obj_align(notificationIcon, nullptr, LV_ALIGN_IN_LEFT_MID, 0, -10);
+  lv_obj_set_style_local_text_color(notificationIcon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Convert(Controllers::Settings::Colors::Orange));
+  lv_obj_align(notificationIcon, nullptr, LV_ALIGN_IN_LEFT_MID, 72, -10);
 
   stepValue = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(stepValue, true);
@@ -69,7 +76,7 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
   weatherState = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_long_mode(weatherState, LV_LABEL_LONG_SROLL_CIRC);
   lv_label_set_recolor(weatherState, true);
-  lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 75, 70);
+  lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 72, 70);
   lv_obj_set_width(weatherState, LV_HOR_RES - 75);
 
   label_prompt_2 = lv_label_create(lv_scr_act(), nullptr);
@@ -89,7 +96,7 @@ void WatchFaceTerminal::Refresh() {
   powerPresent = batteryController.IsPowerPresent();
   batteryPercentRemaining = batteryController.PercentRemaining();
   if (batteryPercentRemaining.IsUpdated() || powerPresent.IsUpdated()) {
-    lv_label_set_text_fmt(batteryValue, "[BATT]#387b54 %d%%#", batteryPercentRemaining.Get());
+    lv_label_set_text_fmt(batteryValue, "[BATT]#387b54 %d%% #", batteryPercentRemaining.Get());
     if (batteryController.IsPowerPresent()) {
       lv_label_ins_text(batteryValue, LV_LABEL_POS_LAST, " Charging");
     }
@@ -112,11 +119,15 @@ void WatchFaceTerminal::Refresh() {
   notificationCount = notificationManager.NbNotifications();
   if (notificationCount.IsUpdated()) {
     size_t count = notificationCount.Get();
+    lv_obj_set_style_local_text_color(notificationPrefix, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Convert(Controllers::Settings::Colors::Orange));
     if (count == 0 || count > 1) {
-      lv_label_set_text_fmt(notificationIcon, "[NOTI]#fc7a00 %lu messages#", count);
+      if(count == 0) {
+        lv_obj_set_style_local_text_color(notificationPrefix, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Convert(Controllers::Settings::Colors::White));
+      }
+      lv_label_set_text_fmt(notificationIcon, "%lu messages", count);
     }
     else {
-      lv_label_set_text_fmt(notificationIcon, "[NOTI]#fc7a00 %lu message#", count);
+      lv_label_set_text_fmt(notificationIcon, "%lu message", count);
     }
   }
 
@@ -170,16 +181,19 @@ void WatchFaceTerminal::Refresh() {
     nowTemp = (weatherService.GetCurrentTemperature()->temperature);
     clouds = (weatherService.GetCurrentClouds()->amount);
     precip = (weatherService.GetCurrentPrecipitation()->amount);
+    lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 72, 70);
     if (nowTemp.IsUpdated()) {
       if ((clouds.Get() <= 30) && (precip.Get() == 0)) {
         lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° clear#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
       } else if ((clouds.Get() >= 70) && (clouds.Get() <= 90) && (precip.Get() == 1)) {
+        lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 90, 70);
         lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° sun/cloudy/rain#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
       } else if ((clouds.Get() > 90) && (precip.Get() == 0)) {
         lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° cloudy#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
       } else if ((clouds.Get() > 70) && (precip.Get() >= 2)) {
         lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° rain#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
       } else {
+        lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 90, 70);
         lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° part.cloudy#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
       };
     }    
