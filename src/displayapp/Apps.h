@@ -35,6 +35,7 @@ namespace Pinetime {
       SettingSteps,
       SettingSetDateTime,
       SettingChimes,
+      SettingBleDisconnectAlert,
       SettingShakeThreshold,
       SettingBluetooth,
       Error

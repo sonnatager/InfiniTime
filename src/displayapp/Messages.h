@@ -25,7 +25,8 @@ namespace Pinetime {
         BleRadioEnableToggle,
         OnChargingEvent,
         ShowIgnoreTouchPopup,
-        HideIgnoreTouchPopup
+        HideIgnoreTouchPopup,
+        BleDisconnect
       };
     }
   }

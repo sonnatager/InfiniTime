@@ -46,6 +46,7 @@
 #include "displayapp/screens/settings/SettingSteps.h"
 #include "displayapp/screens/settings/SettingSetDateTime.h"
 #include "displayapp/screens/settings/SettingChimes.h"
+#include "displayapp/screens/settings/SettingBleDisconnectAlert.h"
 #include "displayapp/screens/settings/SettingShakeThreshold.h"
 #include "displayapp/screens/settings/SettingBluetooth.h"
 
@@ -373,6 +374,11 @@ void DisplayApp::Refresh() {
       case Messages::HideIgnoreTouchPopup:
         popupMessage.SetHidden(true);
         break;
+      case Messages::BleDisconnect:
+        motorController.StartShortRinging();
+        vTaskDelay(400);
+        motorController.StopShortRinging();
+        break;
     }
   }
 
@@ -502,6 +508,9 @@ void DisplayApp::LoadScreen(Apps app, DisplayApp::FullRefreshDirections directio
       break;
     case Apps::SettingChimes:
       currentScreen = std::make_unique<Screens::SettingChimes>(settingsController);
+      break;
+    case Apps::SettingBleDisconnectAlert:
+      currentScreen = std::make_unique<Screens::SettingBleDisconnectAlert>(settingsController);
       break;
     case Apps::SettingShakeThreshold:
       currentScreen = std::make_unique<Screens::SettingShakeThreshold>(settingsController, motionController, *systemTask);

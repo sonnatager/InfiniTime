@@ -407,6 +407,11 @@ void SystemTask::Work() {
           }
           displayApp.PushMessage(Pinetime::Applications::Display::Messages::ShowPairingKey);
           break;
+        case Messages::BleDisconnect: {
+          if (settingsController.GetBleDisconnectAlertOption() != Controllers::Settings::BleDisconnectAlertOption::Off) {
+              displayApp.PushMessage(Pinetime::Applications::Display::Messages::BleDisconnect);
+          }
+        } break;
         case Messages::BleRadioEnableToggle:
           if (settingsController.GetBleRadioEnabled()) {
             nimbleController.EnableRadio();
