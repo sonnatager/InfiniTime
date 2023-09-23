@@ -232,12 +232,12 @@ void DisplayApp::Refresh() {
         state = States::Idle;
         break;
       case Messages::GoToRunning:
+        if(currentApp != Apps::Timer && currentApp != Apps::NotificationsPreview && currentApp != Apps::FirmwareUpdate && currentApp != Apps::PassKey && currentApp != Apps::Error){
+          LoadNewScreen(Apps::Clock, DisplayApp::FullRefreshDirections::None);
+        }
         lcd.Wakeup();
         lv_disp_trig_activity(nullptr);
         ApplyBrightness();
-        if(currentApp != Apps::Timer){
-          LoadNewScreen(Apps::Clock, DisplayApp::FullRefreshDirections::None);
-        }
         state = States::Running;
         break;
       case Messages::UpdateBleConnection:
