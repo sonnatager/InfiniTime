@@ -13,7 +13,7 @@ namespace {
   }
 }
 
-constexpr std::array<SettingBleDisconnectAlert::Option, 3> SettingBleDisconnectAlert::options;
+constexpr std::array<SettingBleDisconnectAlert::Option, 2> SettingBleDisconnectAlert::options;
 
 SettingBleDisconnectAlert::SettingBleDisconnectAlert(Pinetime::Controllers::Settings& settingsController)
   : settingsController {settingsController} {
