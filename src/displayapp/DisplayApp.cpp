@@ -232,7 +232,17 @@ void DisplayApp::Refresh() {
         state = States::Idle;
         break;
       case Messages::GoToRunning:
-        if(currentApp != Apps::Timer && currentApp != Apps::NotificationsPreview && currentApp != Apps::FirmwareUpdate && currentApp != Apps::PassKey && currentApp != Apps::Error){
+        if (currentApp != Apps::Timer &&
+            currentApp != Apps::NotificationsPreview &&
+            currentApp != Apps::FirmwareUpdate &&
+            currentApp != Apps::PassKey &&
+            currentApp != Apps::Error &&
+            currentApp != Apps::Paddle &&
+            currentApp != Apps::Paint &&
+            currentApp != Apps::Twos &&
+            currentApp != Apps::HeartRate &&
+            currentApp != Apps::Metronome &&
+            currentApp != Apps::Navigation){
           LoadNewScreen(Apps::Clock, DisplayApp::FullRefreshDirections::None);
         }
         lcd.Wakeup();
