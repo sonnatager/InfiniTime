@@ -228,6 +228,7 @@ void DisplayApp::Refresh() {
           vTaskDelay(100);
         }
         lcd.Sleep();
+        lastSleep = dateTimeController.CurrentDateTime();
         PushMessageToSystemTask(Pinetime::System::Messages::OnDisplayTaskSleeping);
         state = States::Idle;
         break;
@@ -243,7 +244,12 @@ void DisplayApp::Refresh() {
             currentApp != Apps::HeartRate &&
             currentApp != Apps::Metronome &&
             currentApp != Apps::Navigation){
-          LoadNewScreen(Apps::Clock, DisplayApp::FullRefreshDirections::None);
+          if (lastSleep.IsUpdated()) {
+            uint32_t secondsSinceLastSleep = std::chrono::duration_cast<std::chrono::seconds>(dateTimeController.CurrentDateTime() - lastSleep.Get()).count();
+            if (secondsSinceLastSleep > 20) {
+              LoadNewScreen(Apps::Clock, DisplayApp::FullRefreshDirections::None);
+            }
+          }
         }
         lcd.Wakeup();
         lv_disp_trig_activity(nullptr);
@@ -388,9 +394,15 @@ void DisplayApp::Refresh() {
         popupMessage.SetHidden(true);
         break;
       case Messages::BleDisconnect:
-        motorController.StartShortRinging();
-        vTaskDelay(400);
-        motorController.StopShortRinging();
+        if (lastDisconnect.IsUpdated()) {
+          uint32_t secondsSinceLastDisconnect = std::chrono::duration_cast<std::chrono::seconds>(dateTimeController.CurrentDateTime() - lastDisconnect.Get()).count();
+            if (secondsSinceLastDisconnect > 60) {
+            lastDisconnect = dateTimeController.CurrentDateTime();
+            motorController.StartShortRinging();
+            vTaskDelay(400);
+            motorController.StopShortRinging();
+          }
+        }
         break;
     }
   }

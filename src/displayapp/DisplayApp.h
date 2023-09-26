@@ -16,6 +16,7 @@
 #include "components/alarm/AlarmController.h"
 #include "touchhandler/TouchHandler.h"
 #include "displayapp/widgets/PopupMessage.h"
+#include "utility/DirtyValue.h"
 
 #include "displayapp/Messages.h"
 #include "BootErrors.h"
@@ -130,6 +131,9 @@ namespace Pinetime {
       static constexpr size_t returnAppStackSize = 10;
       Utility::StaticStack<Apps, returnAppStackSize> returnAppStack;
       Utility::StaticStack<FullRefreshDirections, returnAppStackSize> appStackDirections;
+
+      Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>> lastDisconnect;
+      Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>> lastSleep;
 
       bool isDimmed = false;
     };
