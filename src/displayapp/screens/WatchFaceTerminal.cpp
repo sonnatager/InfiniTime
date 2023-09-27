@@ -173,8 +173,15 @@ void WatchFaceTerminal::Refresh() {
     lv_label_set_text_fmt(stepValue, "[STEP]#ee3377 %lu steps#", stepCount.Get());
   }
 
-  if (weatherService.GetCurrentTemperature()->timestamp != 0 && weatherService.GetCurrentClouds()->timestamp != 0 &&
-      weatherService.GetCurrentPrecipitation()->timestamp != 0) {
+  const auto& newTemperatureEvent = weatherService.GetCurrentTemperature();
+  const auto& newCloudsEvent = weatherService.GetCurrentClouds();
+  const auto& newPrecipitationEvent = weatherService.GetCurrentPrecipitation();
+
+  if(newTemperatureEvent->timestamp == 0 && newCloudsEvent->timestamp == 0 && newPrecipitationEvent == 0) {
+    lv_label_set_text_static(weatherState, "#be2bc1 ---#");
+  }
+
+   if (newTemperatureEvent->timestamp != 0 && newCloudsEvent->timestamp != 0 /*&& newPrecipitationEvent->timestamp !=0*/) {
     nowTemp = (weatherService.GetCurrentTemperature()->temperature);
     clouds = (weatherService.GetCurrentClouds()->amount);
     precip = (weatherService.GetCurrentPrecipitation()->amount);
