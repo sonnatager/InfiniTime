@@ -103,12 +103,12 @@ void WatchFaceTerminal::Refresh() {
   bleRadioEnabled = bleController.IsRadioEnabled();
   if (bleState.IsUpdated() || bleRadioEnabled.IsUpdated()) {
     if (!bleRadioEnabled.Get()) {
-      lv_label_set_text_static(connectState, "[STAT]#0082fc Disabled#");
+      lv_label_set_text_static(connectState, "[STAT]#11cc55 Disabled#");
     } else {
       if (bleState.Get()) {
-        lv_label_set_text_static(connectState, "[STAT]#0082fc Connected#");
+        lv_label_set_text_static(connectState, "[STAT]#11cc55 Connected#");
       } else {
-        lv_label_set_text_static(connectState, "[STAT]#0082fc Disconnected#");
+        lv_label_set_text_static(connectState, "[STAT]#11cc55 Disconnected#");
       }
     }
   }
