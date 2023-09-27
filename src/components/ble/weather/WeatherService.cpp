@@ -694,7 +694,7 @@ namespace Pinetime {
       // If an event with a shorter expiry already exists, keep it and drop the new one
       if(existingEvent == timeline.end()) {
         timeline.push_back(std::move(event));
-      } else if(event->expires < (*existingEvent)->expires) {
+      } else if(event->expires <= (*existingEvent)->expires) {
         timeline.erase(existingEvent);
         timeline.push_back(std::move(event));
       } else {
