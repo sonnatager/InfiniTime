@@ -186,16 +186,17 @@ void WatchFaceTerminal::Refresh() {
     clouds = (weatherService.GetCurrentClouds()->amount);
     precip = (weatherService.GetCurrentPrecipitation()->amount);
     if (nowTemp.IsUpdated()) {
+      int16_t modulo = (nowTemp.Get() % 100) / 10;
       if ((clouds.Get() <= 30) && (precip.Get() == 0)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° clear#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, clear#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
       } else if ((clouds.Get() >= 70) && (clouds.Get() <= 90) && (precip.Get() == 1)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° sun/cloudy/rain#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, sun/cloudy/rain#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
       } else if ((clouds.Get() > 90) && (precip.Get() == 0)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° cloudy#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, cloudy#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
       } else if ((clouds.Get() > 70) && (precip.Get() >= 2)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° rain#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, rain#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
       } else {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d.%d° part.cloudy#", nowTemp.Get() / 100, (nowTemp.Get() % 100) / 10);
+        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, %d, %d part.cloudy#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
       };
     }    
   } else {
