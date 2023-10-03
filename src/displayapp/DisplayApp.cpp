@@ -243,7 +243,8 @@ void DisplayApp::Refresh() {
             currentApp != Apps::Twos &&
             currentApp != Apps::HeartRate &&
             currentApp != Apps::Metronome &&
-            currentApp != Apps::Navigation){
+            currentApp != Apps::Navigation &&
+            currentApp != Apps::Music) {
           if (lastSleep.IsUpdated()) {
             uint32_t secondsSinceLastSleep = std::chrono::duration_cast<std::chrono::seconds>(dateTimeController.CurrentDateTime() - lastSleep.Get()).count();
             if (secondsSinceLastSleep > 20) {

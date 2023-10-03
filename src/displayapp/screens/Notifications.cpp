@@ -45,7 +45,11 @@ Notifications::Notifications(DisplayApp* app,
       motorController.StartRinging();
     } else {
       motorController.StartShortRinging();
-      vTaskDelay(600);
+      vTaskDelay(400);
+      motorController.StopShortRinging();
+      vTaskDelay(250);
+      motorController.StartShortRinging();
+      vTaskDelay(400);
       motorController.StopShortRinging();
     }
 

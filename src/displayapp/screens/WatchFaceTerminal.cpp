@@ -70,15 +70,9 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
   lv_label_set_recolor(connectState, true);
   lv_obj_align(connectState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 70);
 
-  weatherStatePrefix = lv_label_create(lv_scr_act(), nullptr);
-  lv_obj_align(weatherStatePrefix, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 90);
-  lv_label_set_text_static(weatherStatePrefix, "[WTHR]");
-
   weatherState = lv_label_create(lv_scr_act(), nullptr);
-  lv_label_set_long_mode(weatherState, LV_LABEL_LONG_SROLL_CIRC);
   lv_label_set_recolor(weatherState, true);
-  lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 72, 90);
-  lv_obj_set_width(weatherState, LV_HOR_RES - 75);
+  lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 90);
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
   Refresh();
@@ -93,9 +87,17 @@ void WatchFaceTerminal::Refresh() {
   powerPresent = batteryController.IsPowerPresent();
   batteryPercentRemaining = batteryController.PercentRemaining();
   if (batteryPercentRemaining.IsUpdated() || powerPresent.IsUpdated()) {
-    lv_label_set_text_fmt(batteryValue, "[BATT]#387b54 %d%% #", batteryPercentRemaining.Get());
     if (batteryController.IsPowerPresent()) {
       lv_label_ins_text(batteryValue, LV_LABEL_POS_LAST, " Charging");
+    } else {
+      if (batteryPercentRemaining.Get() > 20) {
+        lv_label_set_text_fmt(batteryValue, "[BATT]#11cc55 %d%% #", batteryPercentRemaining.Get());
+      } else if (batteryPercentRemaining.Get() < 10) {
+        lv_label_set_text_fmt(batteryValue, "[BATT]#ff0000 %d%% #", batteryPercentRemaining.Get());
+      } else {
+        lv_label_set_text_fmt(batteryValue, "[BATT]#ffa500 %d%% #", batteryPercentRemaining.Get());
+      }
+      
     }
   }
 
@@ -103,12 +105,12 @@ void WatchFaceTerminal::Refresh() {
   bleRadioEnabled = bleController.IsRadioEnabled();
   if (bleState.IsUpdated() || bleRadioEnabled.IsUpdated()) {
     if (!bleRadioEnabled.Get()) {
-      lv_label_set_text_static(connectState, "[STAT]#11cc55 Disabled#");
+      lv_label_set_text_static(connectState, "[STAT]#387b54 Disabled#");
     } else {
       if (bleState.Get()) {
-        lv_label_set_text_static(connectState, "[STAT]#11cc55 Connected#");
+        lv_label_set_text_static(connectState, "[STAT]#387b54 Connected#");
       } else {
-        lv_label_set_text_static(connectState, "[STAT]#11cc55 Disconnected#");
+        lv_label_set_text_static(connectState, "[STAT]#387b54 Disconnected#");
       }
     }
   }
@@ -121,10 +123,10 @@ void WatchFaceTerminal::Refresh() {
       if(count == 0) {
         lv_obj_set_style_local_text_color(notificationPrefix, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Convert(Controllers::Settings::Colors::White));
       }
-      lv_label_set_text_fmt(notificationIcon, "%lu messages", count);
+      lv_label_set_text_fmt(notificationIcon, "%d messages", count);
     }
     else {
-      lv_label_set_text_fmt(notificationIcon, "%lu message", count);
+      lv_label_set_text_fmt(notificationIcon, "%d message", count);
     }
   }
 
@@ -174,32 +176,14 @@ void WatchFaceTerminal::Refresh() {
   }
 
   const auto& newTemperatureEvent = weatherService.GetCurrentTemperature();
-  const auto& newCloudsEvent = weatherService.GetCurrentClouds();
-  const auto& newPrecipitationEvent = weatherService.GetCurrentPrecipitation();
 
-  if(newTemperatureEvent->timestamp == 0 && newCloudsEvent->timestamp == 0 && newPrecipitationEvent == 0) {
-    lv_label_set_text_static(weatherState, "#be2bc1 ---#");
-  }
-
-   if (newTemperatureEvent->timestamp != 0 && newCloudsEvent->timestamp != 0 /*&& newPrecipitationEvent->timestamp !=0*/) {
+  if (newTemperatureEvent->timestamp != 0) {
     nowTemp = (weatherService.GetCurrentTemperature()->temperature);
-    clouds = (weatherService.GetCurrentClouds()->amount);
-    precip = (weatherService.GetCurrentPrecipitation()->amount);
     if (nowTemp.IsUpdated()) {
       int16_t modulo = (nowTemp.Get() % 100) / 10;
-      if ((clouds.Get() <= 30) && (precip.Get() == 0)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, clear#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
-      } else if ((clouds.Get() >= 70) && (clouds.Get() <= 90) && (precip.Get() == 1)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, sun/cloudy/rain#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
-      } else if ((clouds.Get() > 90) && (precip.Get() == 0)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, cloudy#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
-      } else if ((clouds.Get() > 70) && (precip.Get() >= 2)) {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, rain#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
-      } else {
-        lv_label_set_text_fmt(weatherState, "#be2bc1 %d°, %d, %d part.cloudy#", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1);
-      };
+      lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d° #", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1, modulo);
     }    
   } else {
-    lv_label_set_text_static(weatherState, "#be2bc1 ---#");
+    lv_label_set_text_static(weatherState, "[TEMP]#be2bc1 ---#");
   }
 }

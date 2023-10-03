@@ -7,6 +7,7 @@
 #include "displayapp/screens/Screen.h"
 #include "components/datetime/DateTimeController.h"
 #include "utility/DirtyValue.h"
+#include "components/ble/weather/WeatherData.h"
 
 namespace Pinetime {
   namespace Controllers {
@@ -49,8 +50,6 @@ namespace Pinetime {
         using days = std::chrono::duration<int32_t, std::ratio<86400>>; // TODO: days is standard in c++20
         Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, days>> currentDate;
         Utility::DirtyValue<int16_t> nowTemp {};
-        Utility::DirtyValue<int16_t> clouds = {};
-        Utility::DirtyValue<int16_t> precip = {};
 
         lv_obj_t* label_time;
         lv_obj_t* label_date;
@@ -61,7 +60,6 @@ namespace Pinetime {
         lv_obj_t* notificationPrefix;
         lv_obj_t* notificationIcon;
         lv_obj_t* connectState;
-        lv_obj_t* weatherStatePrefix;
         lv_obj_t* weatherState;
 
         Controllers::DateTime& dateTimeController;
