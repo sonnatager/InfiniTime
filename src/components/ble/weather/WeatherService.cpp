@@ -580,7 +580,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Clouds>& WeatherService::GetCurrentClouds() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Clouds && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Clouds && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Clouds>&>(header);
         }
       }
@@ -591,7 +592,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Obscuration>& WeatherService::GetCurrentObscuration() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Obscuration && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Obscuration && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Obscuration>&>(header);
         }
       }
@@ -602,7 +604,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Precipitation>& WeatherService::GetCurrentPrecipitation() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Precipitation && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Precipitation && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Precipitation>&>(header);
         }
       }
@@ -613,7 +616,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Wind>& WeatherService::GetCurrentWind() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Wind && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Wind && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Wind>&>(header);
         }
       }
@@ -624,7 +628,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Temperature>& WeatherService::GetCurrentTemperature() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Temperature && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Temperature && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Temperature>&>(header);
         }
       }
@@ -635,7 +640,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Humidity>& WeatherService::GetCurrentHumidity() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Humidity && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Humidity && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Humidity>&>(header);
         }
       }
@@ -646,7 +652,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Pressure>& WeatherService::GetCurrentPressure() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Pressure && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Pressure && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Pressure>&>(header);
         }
       }
@@ -657,7 +664,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::Location>& WeatherService::GetCurrentLocation() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::Location && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::Location && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::Location>&>(header);
         }
       }
@@ -668,7 +676,8 @@ namespace Pinetime {
     std::unique_ptr<WeatherData::AirQuality>& WeatherService::GetCurrentQuality() {
       uint64_t currentTimestamp = GetCurrentUnixTimestamp();
       for (auto&& header : this->timeline) {
-        if (header->eventType == WeatherData::eventtype::AirQuality && IsEventStillValid(header, currentTimestamp)) {
+        if (header->eventType == WeatherData::eventtype::AirQuality && currentTimestamp >= header->timestamp &&
+            IsEventStillValid(header, currentTimestamp)) {
           return reinterpret_cast<std::unique_ptr<WeatherData::AirQuality>&>(header);
         }
       }
