@@ -395,14 +395,12 @@ void DisplayApp::Refresh() {
         popupMessage.SetHidden(true);
         break;
       case Messages::BleDisconnect:
-        if (lastDisconnect.IsUpdated()) {
           uint32_t secondsSinceLastDisconnect = std::chrono::duration_cast<std::chrono::seconds>(dateTimeController.CurrentDateTime() - lastDisconnect.Get()).count();
-            if (secondsSinceLastDisconnect > 60) {
-            lastDisconnect = dateTimeController.CurrentDateTime();
-            motorController.StartShortRinging();
-            vTaskDelay(400);
-            motorController.StopShortRinging();
-          }
+          if (secondsSinceLastDisconnect > 60) {
+          lastDisconnect = dateTimeController.CurrentDateTime();
+          motorController.StartShortRinging();
+          vTaskDelay(400);
+          motorController.StopShortRinging();
         }
         break;
     }
