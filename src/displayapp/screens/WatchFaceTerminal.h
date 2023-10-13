@@ -15,7 +15,6 @@ namespace Pinetime {
     class Battery;
     class Ble;
     class NotificationManager;
-    class HeartRateController;
     class MotionController;
     class WeatherService;
   }
@@ -30,7 +29,6 @@ namespace Pinetime {
                           const Controllers::Ble& bleController,
                           Controllers::NotificationManager& notificationManager,
                           Controllers::Settings& settingsController,
-                          Controllers::HeartRateController& heartRateController,
                           Controllers::MotionController& motionController,
                           Controllers::WeatherService& weatherService);
         ~WatchFaceTerminal() override;
@@ -44,8 +42,6 @@ namespace Pinetime {
         Utility::DirtyValue<bool> bleRadioEnabled {};
         Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>> currentDateTime {};
         Utility::DirtyValue<uint32_t> stepCount {};
-        Utility::DirtyValue<uint8_t> heartbeat {};
-        Utility::DirtyValue<bool> heartbeatRunning {};
         Utility::DirtyValue<size_t> notificationCount {};
         using days = std::chrono::duration<int32_t, std::ratio<86400>>; // TODO: days is standard in c++20
         Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, days>> currentDate;
@@ -55,7 +51,6 @@ namespace Pinetime {
         lv_obj_t* label_date;
         lv_obj_t* label_prompt_1;
         lv_obj_t* batteryValue;
-        lv_obj_t* heartbeatValue;
         lv_obj_t* stepValue;
         lv_obj_t* notificationPrefix;
         lv_obj_t* notificationIcon;
@@ -67,7 +62,6 @@ namespace Pinetime {
         const Controllers::Ble& bleController;
         Controllers::NotificationManager& notificationManager;
         Controllers::Settings& settingsController;
-        Controllers::HeartRateController& heartRateController;
         Controllers::MotionController& motionController;
         Controllers::WeatherService& weatherService;
 
