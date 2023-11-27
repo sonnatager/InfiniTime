@@ -98,12 +98,12 @@ void WatchFaceTerminal::Refresh() {
   bleRadioEnabled = bleController.IsRadioEnabled();
   if (bleState.IsUpdated() || bleRadioEnabled.IsUpdated()) {
     if (!bleRadioEnabled.Get()) {
-      lv_label_set_text_static(connectState, "[STAT]#387b54 Disabled#");
+      lv_label_set_text_static(connectState, "[BLTH]#387b54 Disabled#");
     } else {
       if (bleState.Get()) {
-        lv_label_set_text_static(connectState, "[STAT]#387b54 Connected#");
+        lv_label_set_text_static(connectState, "[BLTH]#387b54 Connected#");
       } else {
-        lv_label_set_text_static(connectState, "[STAT]#387b54 Disconnected#");
+        lv_label_set_text_static(connectState, "[BLTH]#387b54 Disconnected#");
       }
     }
   }
@@ -164,7 +164,7 @@ void WatchFaceTerminal::Refresh() {
     nowTemp = (weatherService.GetCurrentTemperature()->temperature);
     if (nowTemp.IsUpdated()) {
       int16_t modulo = (nowTemp.Get() % 100) / 10;
-      lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d° #", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1, modulo);
+      lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d°C #", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1, modulo < 0 ? modulo * -1 : modulo);
     }    
   } else {
     lv_label_set_text_static(weatherState, "[TEMP]#be2bc1 ---#");
