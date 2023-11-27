@@ -22,6 +22,7 @@
 #include "BootErrors.h"
 
 #include "utility/StaticStack.h"
+#include "displayapp/Controllers.h"
 
 namespace Pinetime {
 
@@ -75,6 +76,9 @@ namespace Pinetime {
       void SetFullRefresh(FullRefreshDirections direction);
 
       void Register(Pinetime::System::SystemTask* systemTask);
+      void Register(Pinetime::Controllers::WeatherService* weatherService);
+      void Register(Pinetime::Controllers::MusicService* musicService);
+      void Register(Pinetime::Controllers::NavigationService* NavigationService);
 
     private:
       Pinetime::Drivers::St7789& lcd;
@@ -100,6 +104,7 @@ namespace Pinetime {
 
       Pinetime::Applications::Widgets::PopupMessage popupMessage;
 
+      AppControllers controllers;
       TaskHandle_t taskHandle;
 
       States state = States::Running;

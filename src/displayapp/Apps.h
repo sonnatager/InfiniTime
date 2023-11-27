@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cstddef>
 namespace Pinetime {
   namespace Applications {
     enum class Apps {
@@ -38,7 +38,24 @@ namespace Pinetime {
       SettingBleDisconnectAlert,
       SettingShakeThreshold,
       SettingBluetooth,
-      Error
+      Error,
+      Weather
     };
+
+    template <Apps>
+    struct AppTraits {};
+
+    template <Apps... As>
+    struct TypeList {
+      static constexpr size_t Count = sizeof...(As);
+    };
+
+    using UserAppTypes = TypeList<Apps::Alarm,
+                                  Apps::HeartRate,
+                                  Apps::Music,
+                                  Apps::Steps,
+                                  Apps::StopWatch,
+                                  Apps::Timer
+                                  >;
   }
 }
