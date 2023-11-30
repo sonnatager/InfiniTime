@@ -1,5 +1,6 @@
 #pragma once
 #include <cstddef>
+
 namespace Pinetime {
   namespace Applications {
     enum class Apps {
@@ -50,12 +51,12 @@ namespace Pinetime {
       static constexpr size_t Count = sizeof...(As);
     };
 
-    using UserAppTypes = TypeList<Apps::Alarm,
-                                  Apps::HeartRate,
-                                  Apps::Music,
+    using UserAppTypes = TypeList<Apps::StopWatch,
+                                  Apps::Alarm,
+                                  Apps::Timer,
                                   Apps::Steps,
-                                  Apps::StopWatch,
-                                  Apps::Timer
+                                  Apps::HeartRate,
+                                  Apps::Music
                                   >;
   }
 }
