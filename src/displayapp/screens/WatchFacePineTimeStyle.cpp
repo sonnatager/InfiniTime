@@ -27,13 +27,14 @@
 #include "displayapp/screens/BleIcon.h"
 #include "displayapp/screens/NotificationIcon.h"
 #include "displayapp/screens/Symbols.h"
+#include "displayapp/screens/WeatherSymbols.h"
 #include "components/battery/BatteryController.h"
 #include "components/ble/BleController.h"
 #include "components/ble/NotificationManager.h"
 #include "components/motion/MotionController.h"
 #include "components/settings/Settings.h"
 #include "displayapp/DisplayApp.h"
-#include "components/ble/weather/WeatherService.h"
+#include "components/ble/SimpleWeatherService.h"
 
 using namespace Pinetime::Applications::Screens;
 
@@ -50,7 +51,7 @@ WatchFacePineTimeStyle::WatchFacePineTimeStyle(Controllers::DateTime& dateTimeCo
                                                Controllers::NotificationManager& notificationManager,
                                                Controllers::Settings& settingsController,
                                                Controllers::MotionController& motionController,
-                                               Controllers::WeatherService& weatherService)
+                                               Controllers::SimpleWeatherService& weatherService)
   : currentDateTime {{}},
     batteryIcon(false),
     dateTimeController {dateTimeController},
@@ -537,40 +538,22 @@ void WatchFacePineTimeStyle::Refresh() {
     }
   }
 
-  const auto& newTemperatureEvent = weatherService.GetCurrentTemperature();
-  const auto& newCloudsEvent = weatherService.GetCurrentClouds();
-  const auto& newPrecipitationEvent = weatherService.GetCurrentPrecipitation();
+  currentWeather = weatherService.Current();
 
-  if(newTemperatureEvent->timestamp == 0 && newCloudsEvent->timestamp == 0 && newPrecipitationEvent == 0) {
-    lv_label_set_text_static(temperature, "--");
-    lv_label_set_text(weatherIcon, Symbols::ban);
-    lv_obj_realign(temperature);
-    lv_obj_realign(weatherIcon);
-  }
-
-  // Assume 0 precipitation if no precipitation event were received
-  if (newTemperatureEvent->timestamp != 0 && newCloudsEvent->timestamp != 0 /*&& newPrecipitationEvent->timestamp !=0*/) {
-    nowTemp = (weatherService.GetCurrentTemperature()->temperature / 100);
-    clouds = (weatherService.GetCurrentClouds()->amount);
-    precip = (newPrecipitationEvent->timestamp != 0) ? weatherService.GetCurrentPrecipitation()->amount : 0;
-    if (nowTemp.IsUpdated()) {
-      lv_label_set_text_fmt(temperature, "%d°", nowTemp.Get());
-      if ((clouds <= 30) && (precip == 0)) {
-        lv_label_set_text(weatherIcon, Symbols::sun);
-      } else if ((clouds >= 70) && (clouds <= 90) && (precip == 1)) {
-        lv_label_set_text(weatherIcon, Symbols::cloudSunRain);
-      } else if ((clouds > 90) && (precip == 0)) {
-        lv_label_set_text(weatherIcon, Symbols::cloud);
-      } else if ((clouds > 70) && (precip >= 2)) {
-        lv_label_set_text(weatherIcon, Symbols::cloudShowersHeavy);
-      } else {
-        lv_label_set_text(weatherIcon, Symbols::cloudSun);
-      };
+  if (currentWeather.IsUpdated()) {
+    auto optCurrentWeather = currentWeather.Get();
+    if (optCurrentWeather) {
+      int16_t temp = optCurrentWeather->temperature;
+      if (settingsController.GetWeatherFormat() == Controllers::Settings::WeatherFormat::Imperial) {
+        temp = Controllers::SimpleWeatherService::CelsiusToFahrenheit(temp);
+      }
+      lv_label_set_text_fmt(temperature, "%d°", temp / 100);
+      lv_label_set_text(weatherIcon, Symbols::GetSymbol(optCurrentWeather->iconId));
       lv_obj_realign(temperature);
       lv_obj_realign(weatherIcon);
     }
   } else {
-    lv_label_set_text_static(temperature, "--");
+    lv_label_set_text(temperature, "--");
     lv_label_set_text(weatherIcon, Symbols::ban);
     lv_obj_realign(temperature);
     lv_obj_realign(weatherIcon);

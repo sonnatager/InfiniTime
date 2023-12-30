@@ -3,13 +3,14 @@
 #include <bitset>
 #include "components/brightness/BrightnessController.h"
 #include "components/fs/FS.h"
-#include "displayapp/WatchFaces.h"
+#include "displayapp/apps/Apps.h"
 
 namespace Pinetime {
   namespace Controllers {
     class Settings {
     public:
       enum class ClockType : uint8_t { H24, H12 };
+      enum class WeatherFormat : uint8_t { Metric, Imperial };
       enum class Notification : uint8_t { On, Off, Sleep };
       enum class ChimesOption : uint8_t { None, Hours, HalfHours };
       enum class BleDisconnectAlertOption : uint8_t { Off, On };
@@ -198,6 +199,17 @@ namespace Pinetime {
         return settings.clockType;
       };
 
+      void SetWeatherFormat(WeatherFormat weatherFormat) {
+        if (weatherFormat != settings.weatherFormat) {
+          settingsChanged = true;
+        }
+        settings.weatherFormat = weatherFormat;
+      };
+
+      WeatherFormat GetWeatherFormat() const {
+        return settings.weatherFormat;
+      };
+
       void SetNotificationStatus(Notification status) {
         if (status != settings.notificationStatus) {
           settingsChanged = true;
@@ -292,13 +304,15 @@ namespace Pinetime {
     private:
       Pinetime::Controllers::FS& fs;
 
-      static constexpr uint32_t settingsVersion = 0x0006;
+      static constexpr uint32_t settingsVersion = 0x0007;
+
       struct SettingsData {
         uint32_t version = settingsVersion;
         uint32_t stepsGoal = 10000;
         uint32_t screenTimeOut = 15000;
 
         ClockType clockType = ClockType::H24;
+        WeatherFormat weatherFormat = WeatherFormat::Metric;
         Notification notificationStatus = Notification::On;
 
         Pinetime::Applications::WatchFace watchFace = Pinetime::Applications::WatchFace::Digital;

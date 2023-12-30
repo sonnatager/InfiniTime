@@ -4,10 +4,11 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <displayapp/Controllers.h>
 #include "displayapp/screens/Screen.h"
 #include "components/datetime/DateTimeController.h"
 #include "utility/DirtyValue.h"
-#include "components/ble/weather/WeatherData.h"
+#include "components/ble/SimpleWeatherService.h"
 
 namespace Pinetime {
   namespace Controllers {
@@ -16,7 +17,7 @@ namespace Pinetime {
     class Ble;
     class NotificationManager;
     class MotionController;
-    class WeatherService;
+    class SimpleWeatherService;
   }
 
   namespace Applications {
@@ -30,7 +31,7 @@ namespace Pinetime {
                           Controllers::NotificationManager& notificationManager,
                           Controllers::Settings& settingsController,
                           Controllers::MotionController& motionController,
-                          Controllers::WeatherService& weatherService);
+                          Controllers::SimpleWeatherService& weatherService);
         ~WatchFaceTerminal() override;
 
         void Refresh() override;
@@ -45,6 +46,7 @@ namespace Pinetime {
         Utility::DirtyValue<size_t> notificationCount {};
         using days = std::chrono::duration<int32_t, std::ratio<86400>>; // TODO: days is standard in c++20
         Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, days>> currentDate;
+        Utility::DirtyValue<std::optional<Pinetime::Controllers::SimpleWeatherService::CurrentWeather>> currentWeather {};
         Utility::DirtyValue<int16_t> nowTemp {};
 
         lv_obj_t* label_time;
@@ -63,10 +65,30 @@ namespace Pinetime {
         Controllers::NotificationManager& notificationManager;
         Controllers::Settings& settingsController;
         Controllers::MotionController& motionController;
-        Controllers::WeatherService& weatherService;
+        Controllers::SimpleWeatherService& weatherService;
 
         lv_task_t* taskRefresh;
       };
     }
+
+    template <>
+    struct WatchFaceTraits<WatchFace::Terminal> {
+      static constexpr WatchFace watchFace = WatchFace::Terminal;
+      static constexpr const char* name = "Terminal";
+
+      static Screens::Screen* Create(AppControllers& controllers) {
+        return new Screens::WatchFaceTerminal(controllers.dateTimeController,
+                                              controllers.batteryController,
+                                              controllers.bleController,
+                                              controllers.notificationManager,
+                                              controllers.settingsController,
+                                              controllers.motionController,
+                                              *controllers.weatherController);
+      };
+
+      static bool IsAvailable(Pinetime::Controllers::FS& /*filesystem*/) {
+        return true;
+      }
+    };
   }
 }

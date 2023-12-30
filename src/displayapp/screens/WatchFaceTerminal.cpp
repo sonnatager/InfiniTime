@@ -9,6 +9,7 @@
 #include "components/motion/MotionController.h"
 #include "components/settings/Settings.h"
 #include <displayapp/Colors.h>
+#include "components/ble/SimpleWeatherService.h"
 
 using namespace Pinetime::Applications::Screens;
 
@@ -18,7 +19,7 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
                                      Controllers::NotificationManager& notificationManager,
                                      Controllers::Settings& settingsController,
                                      Controllers::MotionController& motionController,
-                                     Controllers::WeatherService& weatherService)
+                                     Controllers::SimpleWeatherService& weatherService)
   : currentDateTime {{}},
     dateTimeController {dateTimeController},
     batteryController {batteryController},
@@ -158,15 +159,36 @@ void WatchFaceTerminal::Refresh() {
     lv_label_set_text_fmt(stepValue, "[STEP]#ee3377 %lu steps#", stepCount.Get());
   }
 
-  const auto& newTemperatureEvent = weatherService.GetCurrentTemperature();
-
-  if (newTemperatureEvent->timestamp != 0) {
-    nowTemp = (weatherService.GetCurrentTemperature()->temperature);
-    if (nowTemp.IsUpdated()) {
-      int16_t modulo = (nowTemp.Get() % 100) / 10;
-      lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d°C #", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1, modulo < 0 ? modulo * -1 : modulo);
-    }    
-  } else {
-    lv_label_set_text_static(weatherState, "[TEMP]#be2bc1 ---#");
+  
+  
+  
+  
+  currentWeather = weatherService.Current();
+  if (currentWeather.IsUpdated()) {
+    auto optCurrentWeather = currentWeather.Get();
+    if (optCurrentWeather) {
+      int16_t temp = optCurrentWeather->temperature;
+      if (settingsController.GetWeatherFormat() == Controllers::Settings::WeatherFormat::Imperial) {
+        temp = Controllers::SimpleWeatherService::CelsiusToFahrenheit(temp);
+      }
+      int16_t modulo = (temp % 100) / 10;
+      lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d°C #", modulo < 5 ? temp / 100 : (temp / 100) + 1, modulo < 0 ? modulo * -1 : modulo);
+      // lv_label_set_text(weatherIcon, Symbols::GetSymbol(optCurrentWeather->iconId));
+    }
   }
+
+
+
+
+  // const auto& newTemperatureEvent = weatherService.GetCurrentTemperature();
+
+  // if (newTemperatureEvent->timestamp != 0) {
+  //   nowTemp = (weatherService.GetCurrentTemperature()->temperature);
+  //   if (nowTemp.IsUpdated()) {
+  //     int16_t modulo = (nowTemp.Get() % 100) / 10;
+  //     lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d°C #", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1, modulo < 0 ? modulo * -1 : modulo);
+  //   }    
+  // } else {
+  //   lv_label_set_text_static(weatherState, "[TEMP]#be2bc1 ---#");
+  // }
 }
