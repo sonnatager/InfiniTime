@@ -3,6 +3,7 @@
 #include "displayapp/screens/BatteryIcon.h"
 #include "displayapp/screens/NotificationIcon.h"
 #include "displayapp/screens/Symbols.h"
+#include "displayapp/screens/WeatherSymbols.h"
 #include "components/battery/BatteryController.h"
 #include "components/ble/BleController.h"
 #include "components/ble/NotificationManager.h"
@@ -68,6 +69,10 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
   lv_label_set_recolor(weatherState, true);
   lv_obj_align(weatherState, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 80);
 
+  weatherState2 = lv_label_create(lv_scr_act(), nullptr);
+  lv_label_set_recolor(weatherState2, true);
+  lv_obj_align(weatherState2, nullptr, LV_ALIGN_IN_LEFT_MID, 0, 100);
+
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
   Refresh();
 }
@@ -75,6 +80,41 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
 WatchFaceTerminal::~WatchFaceTerminal() {
   lv_task_del(taskRefresh);
   lv_obj_clean(lv_scr_act());
+}
+
+const char* WatchFaceTerminal::GetWeather(const Pinetime::Controllers::SimpleWeatherService::Icons icon) {
+  switch (icon) {
+    case Pinetime::Controllers::SimpleWeatherService::Icons::Sun:
+      return "sunny";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::CloudsSun:
+      return "part. cloudy";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::Clouds:
+      return "cloudy";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::BrokenClouds:
+      return "part. cloudy";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::Thunderstorm:
+      return "thunder";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::Snow:
+      return "snow";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::CloudShowerHeavy:
+      return "heavy rain";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::CloudSunRain:
+      return "rain";
+      break;
+    case Pinetime::Controllers::SimpleWeatherService::Icons::Smog:
+      return "fog";
+      break;
+    default:
+      return "--";
+      break;
+  }
 }
 
 void WatchFaceTerminal::Refresh() {
@@ -159,10 +199,6 @@ void WatchFaceTerminal::Refresh() {
     lv_label_set_text_fmt(stepValue, "[STEP]#ee3377 %lu steps#", stepCount.Get());
   }
 
-  
-  
-  
-  
   currentWeather = weatherService.Current();
   if (currentWeather.IsUpdated()) {
     auto optCurrentWeather = currentWeather.Get();
@@ -172,23 +208,11 @@ void WatchFaceTerminal::Refresh() {
         temp = Controllers::SimpleWeatherService::CelsiusToFahrenheit(temp);
       }
       int16_t modulo = (temp % 100) / 10;
-      lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d°C #", modulo < 5 ? temp / 100 : (temp / 100) + 1, modulo < 0 ? modulo * -1 : modulo);
-      // lv_label_set_text(weatherIcon, Symbols::GetSymbol(optCurrentWeather->iconId));
+      lv_label_set_text_fmt(weatherState, "[WTHR]#be2bc1 %d.%d°C #", modulo < 5 ? temp / 100 : (temp / 100) + 1, modulo < 0 ? modulo * -1 : modulo);
+      lv_label_set_text_fmt(weatherState2, "[WTHR]#be2bc1 %s #", GetWeather(optCurrentWeather->iconId));
+    } else {
+      lv_label_set_text(weatherState, "[WTHR]#be2bc1 --°C #");
+      lv_label_set_text(weatherState2, "[WTHR]#be2bc1 -- #");
     }
   }
-
-
-
-
-  // const auto& newTemperatureEvent = weatherService.GetCurrentTemperature();
-
-  // if (newTemperatureEvent->timestamp != 0) {
-  //   nowTemp = (weatherService.GetCurrentTemperature()->temperature);
-  //   if (nowTemp.IsUpdated()) {
-  //     int16_t modulo = (nowTemp.Get() % 100) / 10;
-  //     lv_label_set_text_fmt(weatherState, "[TEMP]#be2bc1 %d.%d°C #", modulo < 5 ? nowTemp.Get() / 100 : (nowTemp.Get() / 100) + 1, modulo < 0 ? modulo * -1 : modulo);
-  //   }    
-  // } else {
-  //   lv_label_set_text_static(weatherState, "[TEMP]#be2bc1 ---#");
-  // }
 }

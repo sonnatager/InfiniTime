@@ -58,6 +58,7 @@ namespace Pinetime {
         lv_obj_t* notificationIcon;
         lv_obj_t* connectState;
         lv_obj_t* weatherState;
+        lv_obj_t* weatherState2;
 
         Controllers::DateTime& dateTimeController;
         const Controllers::Battery& batteryController;
@@ -66,6 +67,8 @@ namespace Pinetime {
         Controllers::Settings& settingsController;
         Controllers::MotionController& motionController;
         Controllers::SimpleWeatherService& weatherService;
+
+        const char* GetWeather(const Pinetime::Controllers::SimpleWeatherService::Icons icon);
 
         lv_task_t* taskRefresh;
       };
