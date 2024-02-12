@@ -85,7 +85,7 @@ WatchFaceTerminal::~WatchFaceTerminal() {
 const char* WatchFaceTerminal::GetWeather(const Pinetime::Controllers::SimpleWeatherService::Icons icon) {
   switch (icon) {
     case Pinetime::Controllers::SimpleWeatherService::Icons::Sun:
-      return "sunny";
+      return "clear sky";
       break;
     case Pinetime::Controllers::SimpleWeatherService::Icons::CloudsSun:
       return "part. cloudy";
