@@ -544,7 +544,6 @@ list(APPEND RECOVERY_SOURCE_FILES
         systemtask/SystemTask.cpp
         systemtask/SystemMonitor.cpp
         drivers/TwiMaster.cpp
-        components/gfx/Gfx.cpp
         components/rle/RleDecoder.cpp
         components/heartrate/HeartRateController.cpp
         heartratetask/HeartRateTask.cpp
@@ -574,7 +573,6 @@ list(APPEND RECOVERYLOADER_SOURCE_FILES
 
         components/rle/RleDecoder.cpp
 
-        components/gfx/Gfx.cpp
         drivers/St7789.cpp
         components/brightness/BrightnessController.cpp
 
