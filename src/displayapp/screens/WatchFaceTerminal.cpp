@@ -190,7 +190,7 @@ void WatchFaceTerminal::Refresh() {
       Controllers::DateTime::Months month = dateTimeController.Month();
       uint8_t day = dateTimeController.Day();
       auto* monthString = dateTimeController.MonthShortToStringLow(month);
-      lv_label_set_text_fmt(label_date, "[DATE]#007fff %s, %02d.%s#", dateTimeController.DayOfWeekShortToStringLow(), day, monthString);
+      lv_label_set_text_fmt(label_date, "[DATE]#007fff %s, %02d.%s#", Controllers::DateTime::DayOfWeekShortToStringLow(static_cast<Controllers::DateTime::Days>(day)), day, monthString);
     }
   }
 
